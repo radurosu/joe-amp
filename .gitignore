@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-electron/
+
+# Logs
+*.log
+npm-debug.log*
+
+# macOS
+.DS_Store
+*.icns.iconset/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Electron Builder cache
+~/.electron-builder
+
+# Claude Code project files
+.claude/

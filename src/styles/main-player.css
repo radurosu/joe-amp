@@ -1,0 +1,317 @@
+:root {
+  --bg: #232323;
+  --bg-dark: #1a1a1a;
+  --bg-darker: #0f0f0f;
+  --border-hi: #555555;
+  --border-lo: #000000;
+  --btn-face: #3a3a3a;
+  --btn-hi: #666666;
+  --btn-lo: #111111;
+  --lcd-bg: #0a1f0a;
+  --lcd-green: #00ee00;
+  --lcd-dim: #003300;
+  --lcd-glow: rgba(0, 238, 0, 0.35);
+  --accent: #00ee00;
+}
+
+/* ---- Window chrome ---- */
+.main-player {
+  width: 275px;
+  height: 116px;
+  background: var(--bg);
+  border: 2px solid;
+  border-color: var(--border-hi) var(--border-lo) var(--border-lo) var(--border-hi);
+  position: relative;
+  user-select: none;
+  font-family: 'Arial', sans-serif;
+  flex-shrink: 0;
+}
+
+/* ---- Title bar ---- */
+.title-bar {
+  height: 14px;
+  background: linear-gradient(90deg, #1a4a1a 0%, #0f2f0f 50%, #1a4a1a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+  -webkit-app-region: drag;
+  cursor: grab;
+}
+
+.title-bar-label {
+  color: var(--lcd-green);
+  font-size: 8px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 0 0 4px var(--lcd-green);
+  pointer-events: none;
+}
+
+.title-bar-buttons {
+  display: flex;
+  gap: 2px;
+  -webkit-app-region: no-drag;
+}
+
+.title-btn {
+  width: 9px;
+  height: 9px;
+  background: var(--btn-face);
+  border: 1px solid;
+  border-color: var(--btn-hi) var(--btn-lo) var(--btn-lo) var(--btn-hi);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 6px;
+  color: #888;
+  line-height: 1;
+}
+.title-btn:active {
+  border-color: var(--btn-lo) var(--btn-hi) var(--btn-hi) var(--btn-lo);
+}
+
+/* ---- LCD panel ---- */
+.lcd-panel {
+  position: absolute;
+  top: 18px;
+  left: 10px;
+  width: 152px;
+  height: 36px;
+  background: var(--lcd-bg);
+  border: 1px solid #001400;
+  box-shadow: inset 0 0 6px #000a00;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  cursor: default;
+}
+
+.lcd-title-wrap {
+  width: 100%;
+  overflow: hidden;
+  height: 14px;
+  position: relative;
+}
+
+.lcd-title {
+  color: var(--lcd-green);
+  font-size: 9px;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  text-shadow: 0 0 5px var(--lcd-glow);
+  white-space: nowrap;
+  position: absolute;
+  top: 2px;
+}
+
+.lcd-title.marquee {
+  animation: marquee 8s linear infinite;
+}
+
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.lcd-time-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 0 4px;
+}
+
+.lcd-time {
+  color: var(--lcd-green);
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px var(--lcd-glow);
+  cursor: pointer;
+  min-width: 60px;
+}
+
+.lcd-status {
+  color: var(--lcd-dim);
+  font-size: 8px;
+  font-family: 'Arial', sans-serif;
+  letter-spacing: 0;
+}
+.lcd-status.active {
+  color: var(--lcd-green);
+  text-shadow: 0 0 4px var(--lcd-glow);
+}
+
+/* ---- Seek bar ---- */
+.seek-bar-wrap {
+  position: absolute;
+  top: 18px;
+  left: 167px;
+  right: 8px;
+  height: 10px;
+  background: var(--bg-darker);
+  border: 1px solid;
+  border-color: var(--btn-lo) var(--btn-hi) var(--btn-hi) var(--btn-lo);
+  cursor: pointer;
+}
+
+.seek-bar-fill {
+  height: 100%;
+  background: var(--lcd-dim);
+  position: relative;
+  pointer-events: none;
+}
+
+.seek-bar-knob {
+  width: 4px;
+  height: 100%;
+  background: var(--lcd-green);
+  position: absolute;
+  right: -2px;
+  top: 0;
+  box-shadow: 0 0 3px var(--lcd-glow);
+}
+
+/* ---- Visualizer placeholder ---- */
+.visualizer {
+  position: absolute;
+  top: 30px;
+  left: 167px;
+  right: 8px;
+  height: 26px;
+  background: var(--bg-darker);
+  border: 1px solid;
+  border-color: var(--btn-lo) var(--btn-hi) var(--btn-hi) var(--btn-lo);
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  padding: 1px;
+  overflow: hidden;
+}
+
+.vis-bar {
+  flex: 1;
+  background: var(--lcd-dim);
+  min-height: 1px;
+  transition: height 0.05s;
+}
+
+/* ---- Volume / Balance ---- */
+.sliders-row {
+  position: absolute;
+  top: 60px;
+  left: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.slider-label {
+  color: #555;
+  font-size: 7px;
+  text-align: center;
+  margin-bottom: 1px;
+}
+
+.slider-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.slider-track {
+  width: 64px;
+  height: 8px;
+  background: var(--bg-darker);
+  border: 1px solid;
+  border-color: var(--btn-lo) var(--btn-hi) var(--btn-hi) var(--btn-lo);
+  position: relative;
+  cursor: pointer;
+}
+
+.balance-track {
+  width: 38px;
+}
+
+.slider-knob {
+  width: 10px;
+  height: 100%;
+  background: var(--btn-face);
+  border: 1px solid;
+  border-color: var(--btn-hi) var(--btn-lo) var(--btn-lo) var(--btn-hi);
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  cursor: grab;
+}
+
+/* ---- Transport controls ---- */
+.controls-row {
+  position: absolute;
+  bottom: 6px;
+  left: 10px;
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.ctrl-btn {
+  background: var(--btn-face);
+  border: 1px solid;
+  border-color: var(--btn-hi) var(--btn-lo) var(--btn-lo) var(--btn-hi);
+  color: #bbb;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  line-height: 1;
+}
+.ctrl-btn:active, .ctrl-btn.active {
+  border-color: var(--btn-lo) var(--btn-hi) var(--btn-hi) var(--btn-lo);
+  background: var(--bg-dark);
+}
+
+.ctrl-btn.prev, .ctrl-btn.next { width: 22px; height: 18px; }
+.ctrl-btn.play  { width: 26px; height: 18px; color: var(--lcd-green); font-size: 12px; }
+.ctrl-btn.pause { width: 22px; height: 18px; }
+.ctrl-btn.stop  { width: 22px; height: 18px; }
+.ctrl-btn.open  { width: 22px; height: 18px; font-size: 8px; }
+
+/* ---- Toggle buttons (SHF, RPT, PL, EQ) ---- */
+.toggle-row {
+  position: absolute;
+  bottom: 6px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggle-row-inner {
+  display: flex;
+  gap: 2px;
+}
+
+.toggle-btn {
+  background: var(--btn-face);
+  border: 1px solid;
+  border-color: var(--btn-hi) var(--btn-lo) var(--btn-lo) var(--btn-hi);
+  color: #666;
+  font-size: 6px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  width: 22px;
+  height: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.toggle-btn.on {
+  color: var(--lcd-green);
+  text-shadow: 0 0 4px var(--lcd-glow);
+  border-color: var(--btn-lo) var(--btn-hi) var(--btn-hi) var(--btn-lo);
+}

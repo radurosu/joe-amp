@@ -1,0 +1,51 @@
+{
+  "name": "joeamp",
+  "version": "1.0.0",
+  "description": "JoeAmp — a Winamp-style music player for macOS",
+  "main": "electron/main.js",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -k \"npm run dev:vite\" \"npm run dev:electron\"",
+    "dev:vite": "vite",
+    "dev:electron": "wait-on http://localhost:5173 && electron .",
+    "build": "npm run build:vite && electron-builder",
+    "build:vite": "vite build"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "howler": "^2.2.4",
+    "music-metadata": "^11.12.3"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.1",
+    "concurrently": "^9.2.1",
+    "electron": "^41.1.1",
+    "electron-builder": "^26.8.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "vite": "^8.0.3",
+    "wait-on": "^9.0.4"
+  },
+  "build": {
+    "appId": "com.joeamp",
+    "productName": "JoeAmp",
+    "asar": true,
+    "directories": { "output": "dist-electron" },
+    "mac": {
+      "category": "public.app-category.music",
+      "icon": "public/icon.icns",
+      "identity": null,
+      "target": [{ "target": "dir", "arch": ["arm64"] }]
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "!node_modules/**/*"
+    ],
+    "extraMetadata": {
+      "main": "electron/main.js"
+    }
+  }
+}
