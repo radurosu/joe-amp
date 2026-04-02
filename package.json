@@ -37,7 +37,7 @@
       "category": "public.app-category.music",
       "icon": "public/icon.icns",
       "identity": null,
-      "target": [{ "target": "dir", "arch": ["arm64"] }]
+      "target": [{ "target": "dmg", "arch": ["arm64"] }]
     },
     "files": [
       "dist/**/*",

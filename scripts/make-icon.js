@@ -6,7 +6,6 @@ const fs = require('fs')
 const path = require('path')
 const { execSync } = require('child_process')
 
-// --- PNG writer ---
 function makePNG(size) {
   function crc32(buf) {
     let c = 0xFFFFFFFF
@@ -24,43 +23,61 @@ function makePNG(size) {
     return Buffer.concat([len, t, data, crc])
   }
 
-  const BG    = [0x16, 0x16, 0x16]
-  const GREEN = [0x00, 0xee, 0x00]
-  const DIM   = [0x00, 0x44, 0x00]
-
-  // Draw equalizer bars
-  const barW   = Math.round(size * 0.13)
-  const gap    = Math.round(size * 0.06)
-  const totalW = 3 * barW + 2 * gap
-  const startX = Math.round((size - totalW) / 2)
-  const baseY  = Math.round(size * 0.78)
-  const barHeights = [
-    Math.round(size * 0.38),
-    Math.round(size * 0.56),
-    Math.round(size * 0.28),
-  ]
-  // Dim "empty" part above each bar
-  const maxH = Math.round(size * 0.62)
-
   function getPixel(x, y) {
-    // Rounded corners mask
-    const r = size * 0.18
     const cx = size / 2, cy = size / 2
-    const dx = Math.abs(x - cx) - (size / 2 - r)
-    const dy = Math.abs(y - cy) - (size / 2 - r)
-    if (dx > 0 && dy > 0 && dx * dx + dy * dy > r * r) return BG
+    const nx = x - cx, ny = y - cy
+    const dist = Math.sqrt(nx * nx + ny * ny)
+    const radius = size * 0.47
 
-    for (let i = 0; i < 3; i++) {
+    // Outside circle → transparent-ish (dark bg, macOS will mask)
+    if (dist > radius) return [0x16, 0x16, 0x16]
+
+    // Thin bright border ring
+    if (dist > radius - size * 0.025) {
+      const t = 1 - (radius - dist) / (size * 0.025)
+      const v = Math.round(0x22 + t * 0x44)
+      return [0, v, 0]
+    }
+
+    // Background with subtle radial gradient (darker at edges)
+    const bgBase = Math.round(0x16 + (1 - dist / radius) * 0x0a)
+    const bg = [bgBase, bgBase, bgBase]
+
+    // 5 equalizer bars
+    const numBars = 5
+    const barW   = size * 0.09
+    const gap    = size * 0.04
+    const totalW = numBars * barW + (numBars - 1) * gap
+    const startX = cx - totalW / 2
+    const baseY  = size * 0.76
+    // Heights vary: short, tall, medium-tall, tall, short (wave shape)
+    const heights = [0.28, 0.50, 0.62, 0.44, 0.22].map(h => size * h)
+    const maxH = size * 0.62
+
+    for (let i = 0; i < numBars; i++) {
       const bx = startX + i * (barW + gap)
       if (x >= bx && x < bx + barW) {
-        const bh = barHeights[i]
+        const bh = heights[i]
         const by = baseY - bh
-        if (y >= by && y < baseY) return GREEN
-        // dim track above the bar
-        if (y >= baseY - maxH && y < by) return DIM
+
+        if (y >= by && y < baseY) {
+          // Lit bar — gradient from bright green at top to slightly dimmer at base
+          const progress = (y - by) / bh  // 0 at top, 1 at base
+          const g = Math.round(0xee - progress * 0x44)
+          // Slight glow spread to adjacent pixels
+          return [0, g, 0]
+        }
+        // Dim track above each bar
+        if (y >= baseY - maxH && y < by) return [0, 0x22, 0]
       }
     }
-    return BG
+
+    // Subtle green tint on background near bars area
+    if (y >= baseY - maxH && y < baseY) {
+      return [bgBase, bgBase + 4, bgBase]
+    }
+
+    return bg
   }
 
   const ihdr = Buffer.alloc(13)
@@ -71,7 +88,7 @@ function makePNG(size) {
   const rows = []
   for (let y = 0; y < size; y++) {
     const row = Buffer.alloc(1 + size * 3)
-    row[0] = 0 // filter: None
+    row[0] = 0
     for (let x = 0; x < size; x++) {
       const [r, g, b] = getPixel(x, y)
       row[1 + x * 3] = r
@@ -90,7 +107,7 @@ function makePNG(size) {
   ])
 }
 
-// --- Build iconset and convert to ICNS ---
+// Build iconset and convert to ICNS
 const iconsetDir = path.resolve(__dirname, '../public/icon.iconset')
 fs.mkdirSync(iconsetDir, { recursive: true })
 
