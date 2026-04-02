@@ -60,13 +60,28 @@ MP3, FLAC, OGG, WAV, M4A, AAC, OPUS, WMA, M3U playlists
 
 No Xcode required.
 
+## Quick Start (new machine)
+
+```bash
+# 1. Install Node.js if not already present
+brew install node       # or download from nodejs.org
+
+# 2. Clone and install
+git clone https://github.com/radurosu/joe-amp.git
+cd joe-amp
+npm install
+
+# 3. Run or build
+npm run dev                                        # development (hot reload)
+CSC_IDENTITY_AUTO_DISCOVERY=false npm run build   # build the DMG
+```
+
+The first build downloads the Electron binary (~116MB) and caches it. Subsequent builds are fast. The DMG is output to `dist-electron/JoeAmp-1.0.0-arm64.dmg`.
+
 ## Development
 
 ```bash
-# Install dependencies
 npm install
-
-# Start in development mode (hot reload)
 npm run dev
 ```
 
