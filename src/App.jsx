@@ -179,7 +179,7 @@ export default function App() {
   }, [audio, handlePlay, handleNext, handlePrev, volume])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: '275px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '275px', height: '100vh' }}>
       <MainPlayer
         status={audio.status}
         currentTime={audio.currentTime}
