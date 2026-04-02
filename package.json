@@ -41,8 +41,10 @@
     },
     "files": [
       "dist/**/*",
-      "electron/**/*",
-      "!node_modules/**/*"
+      "electron/**/*"
+    ],
+    "extraResources": [
+      { "from": "public/start.m4a", "to": "start.m4a" }
     ],
     "extraMetadata": {
       "main": "electron/main.js"

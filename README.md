@@ -35,6 +35,7 @@ A Winamp 2.x-style music player for macOS, built with Electron and React.
 - Drag and drop audio files **or entire folders** onto the window
 - Drag and drop `.m3u` playlists to load them
 - Save the current playlist as an `.m3u` file
+- Startup sound on launch
 - Keyboard shortcuts
 
 ## Keyboard Shortcuts
@@ -117,7 +118,8 @@ joeamp/
 ├── scripts/
 │   └── make-icon.js     # Generates public/icon.icns (no Xcode needed)
 └── public/
-    └── icon.icns
+    ├── icon.icns
+    └── start.m4a        # Startup sound (bundled as extraResource, not in playlist)
 ```
 
 ## Tech Stack

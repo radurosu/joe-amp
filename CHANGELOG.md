@@ -2,6 +2,19 @@
 
 All notable changes to JoeAmp are documented here.
 
+## [1.1.0] — 2026-04-01
+
+### Added
+
+- Startup sound (`public/start.m4a`) plays on launch — fire and forget, never appears in the playlist
+- Bundled as `extraResources` so it lives outside the asar and is accessible via the `joeamp://` protocol in the packaged app
+
+### Fixed
+
+- Packaged app production dependencies (`music-metadata`) were accidentally excluded from the build — restored correct electron-builder `files` config
+
+---
+
 ## [1.0.0] — 2026-04-01
 
 ### Added

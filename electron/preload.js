@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('winampAPI', {
   getPathForFile: (file) => webUtils.getPathForFile(file),
   resolveDropped: (paths) => ipcRenderer.invoke('fs:resolveDropped', paths),
   savePlaylist: (tracks) => ipcRenderer.invoke('playlist:save', tracks),
+  getStartSoundPath: () => ipcRenderer.invoke('app:startSoundPath'),
   closeWindow: () => ipcRenderer.send('window:close'),
   minimizeWindow: () => ipcRenderer.send('window:minimize'),
   resizeWindow: (height) => ipcRenderer.send('window:resize', height),

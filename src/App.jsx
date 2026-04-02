@@ -1,4 +1,5 @@
 import React, { useReducer, useCallback } from 'react'
+import { Howl } from 'howler'
 import { useAudioPlayer } from './hooks/useAudioPlayer.js'
 import MainPlayer from './components/MainPlayer.jsx'
 import Playlist from './components/Playlist.jsx'
@@ -91,6 +92,18 @@ export default function App() {
     }
     prevIndexRef.current = currentIndex
   }, [currentIndex]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Play startup sound — fire and forget, never touches the playlist
+  React.useEffect(() => {
+    window.winampAPI.getStartSoundPath()
+      .then((filePath) => {
+        const src = filePath
+          ? 'joeamp://local/' + encodeURIComponent(filePath)
+          : './start.m4a'
+        new Howl({ src: [src], html5: true, volume: 0.8 }).play()
+      })
+      .catch(() => {}) // never let startup sound crash the app
+  }, [])
 
   // File loading
   const addFilePaths = useCallback(async (filePaths) => {

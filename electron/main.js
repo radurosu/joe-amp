@@ -147,6 +147,13 @@ ipcMain.handle('playlist:save', async (_e, tracks) => {
   return true
 })
 
+// Returns null in dev (renderer uses Vite's served ./start.m4a),
+// or the absolute path to the extraResource in production
+ipcMain.handle('app:startSoundPath', () => {
+  if (isDev) return null
+  return path.join(process.resourcesPath, 'start.m4a')
+})
+
 ipcMain.handle('metadata:read', (_e, filePath) => readMeta(filePath))
 
 ipcMain.handle('metadata:readBatch', (_e, filePaths) =>
