@@ -8,6 +8,8 @@ contextBridge.exposeInMainWorld('winampAPI', {
   resolveDropped: (paths) => ipcRenderer.invoke('fs:resolveDropped', paths),
   savePlaylist: (tracks) => ipcRenderer.invoke('playlist:save', tracks),
   getStartSoundPath: () => ipcRenderer.invoke('app:startSoundPath'),
+  saveState: (state) => ipcRenderer.invoke('state:save', state),
+  loadState: () => ipcRenderer.invoke('state:load'),
   closeWindow: () => ipcRenderer.send('window:close'),
   minimizeWindow: () => ipcRenderer.send('window:minimize'),
   resizeWindow: (height) => ipcRenderer.send('window:resize', height),

@@ -4,6 +4,7 @@ import { Howl } from 'howler'
 export function useAudioPlayer({ track, volume, onEnd }) {
   const howlRef = useRef(null)
   const rafRef = useRef(null)
+  const isSeekingRef = useRef(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [status, setStatus] = useState('stopped')
@@ -26,7 +27,8 @@ export function useAudioPlayer({ track, volume, onEnd }) {
       html5: true,
       volume,
       onload() {
-        setDuration(howl.duration())
+        const d = howl.duration()
+        setDuration(isFinite(d) && d > 0 ? d : (track.duration || 0))
       },
       onend() {
         setStatus('stopped')
@@ -37,15 +39,14 @@ export function useAudioPlayer({ track, volume, onEnd }) {
       onplay() {
         setStatus('playing')
         const tick = () => {
-          if (howlRef.current) {
-            const t = howlRef.current.seek()
-            if (typeof t === 'number') setCurrentTime(t)
-          }
+          const node = howlRef.current?._sounds[0]?._node
+          if (node) setCurrentTime(node.currentTime)
           rafRef.current = requestAnimationFrame(tick)
         }
         rafRef.current = requestAnimationFrame(tick)
       },
       onpause() {
+        if (isSeekingRef.current) return
         setStatus('paused')
         cancelAnimationFrame(rafRef.current)
       },
@@ -73,10 +74,12 @@ export function useAudioPlayer({ track, volume, onEnd }) {
   const pause = useCallback(() => howlRef.current?.pause(), [])
   const stop = useCallback(() => howlRef.current?.stop(), [])
   const seek = useCallback((seconds) => {
-    if (howlRef.current) {
-      howlRef.current.seek(seconds)
-      setCurrentTime(seconds)
-    }
+    if (!howlRef.current || !isFinite(seconds) || seconds < 0) return
+    isSeekingRef.current = true
+    const node = howlRef.current._sounds[0]?._node
+    if (node) node.currentTime = seconds
+    setCurrentTime(seconds)
+    setTimeout(() => { isSeekingRef.current = false }, 100)
   }, [])
 
   return { play, pause, stop, seek, currentTime, duration, status }

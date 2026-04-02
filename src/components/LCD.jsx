@@ -1,16 +1,13 @@
 import React, { useRef, useEffect, useState } from 'react'
 
-function formatTime(seconds, showRemaining, duration) {
-  const s = showRemaining ? -(duration - seconds) : seconds
-  const abs = Math.abs(s)
+function formatTime(seconds) {
+  const abs = Math.abs(seconds || 0)
   const m = Math.floor(abs / 60)
   const sec = Math.floor(abs % 60)
-  const sign = s < 0 ? '-' : ' '
-  return `${sign}${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
+  return `${m}:${String(sec).padStart(2, '0')}`
 }
 
 export default function LCD({ currentTrack, currentTime, duration, status }) {
-  const [showRemaining, setShowRemaining] = useState(false)
   const titleRef = useRef(null)
   const wrapRef = useRef(null)
   const [needsMarquee, setNeedsMarquee] = useState(false)
@@ -26,8 +23,8 @@ export default function LCD({ currentTrack, currentTime, duration, status }) {
   }, [title])
 
   const timeStr = duration > 0
-    ? formatTime(currentTime, showRemaining, duration)
-    : ' 00:00'
+    ? `${formatTime(currentTime)} / ${formatTime(duration)}`
+    : '0:00 / 0:00'
 
   const statusLabel = status === 'playing' ? '▶' : status === 'paused' ? '⏸' : '■'
 
@@ -37,19 +34,13 @@ export default function LCD({ currentTrack, currentTime, duration, status }) {
         <span
           ref={titleRef}
           className={`lcd-title${needsMarquee ? ' marquee' : ''}`}
-          style={needsMarquee ? { paddingLeft: '4px' } : { paddingLeft: '4px' }}
+          style={{ paddingLeft: '4px' }}
         >
           {needsMarquee ? `${title}     ${title}` : title}
         </span>
       </div>
       <div className="lcd-time-row">
-        <span
-          className="lcd-time"
-          onClick={() => setShowRemaining((r) => !r)}
-          title={showRemaining ? 'Show elapsed' : 'Show remaining'}
-        >
-          {timeStr}
-        </span>
+        <span className="lcd-time">{timeStr}</span>
         <span className={`lcd-status${status !== 'stopped' ? ' active' : ''}`}>
           {statusLabel}
         </span>

@@ -45,7 +45,7 @@ function createWindow() {
     height: 380,
     minWidth: 275,
     maxWidth: 275,
-    minHeight: 116,
+    minHeight: 130,
     resizable: true,
     frame: false,
     transparent: false,
@@ -81,7 +81,7 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit()
+  app.quit()
 })
 
 // Window controls
@@ -153,6 +153,16 @@ ipcMain.handle('playlist:save', async (_e, tracks) => {
 ipcMain.handle('app:startSoundPath', () => {
   if (isDev) return null
   return path.join(process.resourcesPath, 'start.m4a')
+})
+
+const stateFile = () => path.join(app.getPath('userData'), 'joeamp-state.json')
+
+ipcMain.handle('state:save', (_e, state) => {
+  try { fs.writeFileSync(stateFile(), JSON.stringify(state), 'utf8') } catch { /* ignore */ }
+})
+
+ipcMain.handle('state:load', () => {
+  try { return JSON.parse(fs.readFileSync(stateFile(), 'utf8')) } catch { return null }
 })
 
 ipcMain.handle('metadata:read', (_e, filePath) => readMeta(filePath))

@@ -17,7 +17,7 @@
 /* ---- Window chrome ---- */
 .main-player {
   width: 275px;
-  height: 116px;
+  height: 130px;
   background: var(--bg);
   border: 2px solid;
   border-color: var(--border-hi) var(--border-lo) var(--border-lo) var(--border-hi);
@@ -75,10 +75,10 @@
 /* ---- LCD panel ---- */
 .lcd-panel {
   position: absolute;
-  top: 18px;
-  left: 10px;
-  width: 152px;
-  height: 36px;
+  top: 16px;
+  left: 8px;
+  right: 8px;
+  height: 38px;
   background: var(--lcd-bg);
   border: 1px solid #001400;
   box-shadow: inset 0 0 6px #000a00;
@@ -148,14 +148,17 @@
 /* ---- Seek bar ---- */
 .seek-bar-wrap {
   position: absolute;
-  top: 18px;
-  left: 167px;
+  top: 58px;
+  left: 8px;
   right: 8px;
-  height: 10px;
+  height: 12px;
   background: var(--bg-darker);
   border: 1px solid;
   border-color: var(--btn-lo) var(--btn-hi) var(--btn-hi) var(--btn-lo);
   cursor: pointer;
+}
+.seek-bar-wrap:hover {
+  border-color: var(--lcd-dim) var(--btn-hi) var(--btn-hi) var(--lcd-dim);
 }
 
 .seek-bar-fill {
@@ -175,34 +178,10 @@
   box-shadow: 0 0 3px var(--lcd-glow);
 }
 
-/* ---- Visualizer placeholder ---- */
-.visualizer {
-  position: absolute;
-  top: 30px;
-  left: 167px;
-  right: 8px;
-  height: 26px;
-  background: var(--bg-darker);
-  border: 1px solid;
-  border-color: var(--btn-lo) var(--btn-hi) var(--btn-hi) var(--btn-lo);
-  display: flex;
-  align-items: flex-end;
-  gap: 1px;
-  padding: 1px;
-  overflow: hidden;
-}
-
-.vis-bar {
-  flex: 1;
-  background: var(--lcd-dim);
-  min-height: 1px;
-  transition: height 0.05s;
-}
-
 /* ---- Volume / Balance ---- */
 .sliders-row {
   position: absolute;
-  top: 60px;
+  top: 76px;
   left: 10px;
   display: flex;
   gap: 8px;

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -27,25 +27,30 @@ function totalTime(tracks) {
   return formatDuration(total)
 }
 
-function SortableTrack({ track, index, isActive, onSelect, onRemove }) {
+function SortableTrack({ track, index, isActive, isSelected, onRowClick, onDoubleClick, onRemove }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: track.id })
   const style = { transform: CSS.Transform.toString(transform), transition }
+  const label = track.artist !== 'Unknown Artist' ? `${track.artist} - ${track.title}` : track.title
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`playlist-track${isActive ? ' active' : ''}${isDragging ? ' dragging' : ''}`}
-      onDoubleClick={() => onSelect(index)}
+      className={[
+        'playlist-track',
+        isActive ? 'active' : '',
+        isSelected ? 'selected' : '',
+        isDragging ? 'dragging' : '',
+      ].filter(Boolean).join(' ')}
+      onClick={onRowClick}
+      onDoubleClick={onDoubleClick}
     >
       <span {...attributes} {...listeners} className="drag-handle" title="Drag to reorder">⠿</span>
       <span className="track-index">{index + 1}.</span>
-      <span className="track-title" onClick={() => onSelect(index)} title={track.title}>
-        {track.artist !== 'Unknown Artist' ? `${track.artist} - ${track.title}` : track.title}
-      </span>
+      <span className="track-title" title={label}>{label}</span>
       <span className="track-duration">{formatDuration(track.duration)}</span>
       <span
-        style={{ color: '#333', cursor: 'pointer', fontSize: '9px', paddingLeft: '4px' }}
+        className="track-remove"
         onClick={(e) => { e.stopPropagation(); onRemove(index) }}
         title="Remove"
       >✕</span>
@@ -53,8 +58,55 @@ function SortableTrack({ track, index, isActive, onSelect, onRemove }) {
   )
 }
 
-export default function Playlist({ tracks, currentIndex, onTrackSelect, onAddFiles, onRemoveTrack, onReorder, onClose }) {
+export default function Playlist({ tracks, currentIndex, onTrackSelect, onAddFiles, onRemoveTrack, onRemoveTracks, onReorder, onClose }) {
+  const [selected, setSelected] = useState(new Set())
+  const lastClickedRef = useRef(null)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }))
+
+  // Clear selection when tracks change (e.g. after removal)
+  useEffect(() => setSelected(new Set()), [tracks.length])
+
+  const deleteSelected = useCallback(() => {
+    if (selected.size > 0) {
+      onRemoveTracks([...selected])
+    } else if (currentIndex >= 0) {
+      onRemoveTrack(currentIndex)
+    }
+  }, [selected, currentIndex, onRemoveTracks, onRemoveTrack])
+
+  // Delete / Backspace key
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        // Only if not typing in an input
+        if (e.target.tagName === 'INPUT') return
+        e.preventDefault()
+        deleteSelected()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [deleteSelected])
+
+  const handleRowClick = useCallback((index, e) => {
+    if (e.metaKey || e.ctrlKey) {
+      // Cmd/Ctrl+click: toggle
+      setSelected(prev => {
+        const next = new Set(prev)
+        next.has(index) ? next.delete(index) : next.add(index)
+        return next
+      })
+    } else if (e.shiftKey && lastClickedRef.current !== null) {
+      // Shift+click: range select
+      const from = Math.min(lastClickedRef.current, index)
+      const to   = Math.max(lastClickedRef.current, index)
+      setSelected(new Set(Array.from({ length: to - from + 1 }, (_, i) => from + i)))
+    } else {
+      // Plain click: select only this row
+      setSelected(new Set([index]))
+    }
+    lastClickedRef.current = index
+  }, [])
 
   const handleDragEnd = (event) => {
     const { active, over } = event
@@ -64,6 +116,8 @@ export default function Playlist({ tracks, currentIndex, onTrackSelect, onAddFil
       onReorder(arrayMove(tracks, oldIndex, newIndex))
     }
   }
+
+  const selCount = selected.size
 
   return (
     <div className="playlist">
@@ -86,7 +140,9 @@ export default function Playlist({ tracks, currentIndex, onTrackSelect, onAddFil
                 track={track}
                 index={i}
                 isActive={i === currentIndex}
-                onSelect={onTrackSelect}
+                isSelected={selected.has(i)}
+                onRowClick={(e) => handleRowClick(i, e)}
+                onDoubleClick={() => { onTrackSelect(i); setSelected(new Set()) }}
                 onRemove={onRemoveTrack}
               />
             ))}
@@ -96,13 +152,19 @@ export default function Playlist({ tracks, currentIndex, onTrackSelect, onAddFil
 
       <div className="playlist-toolbar">
         <button className="pl-btn" onClick={onAddFiles}>+ ADD</button>
-        <button className="pl-btn" onClick={() => tracks.length > 0 && onRemoveTrack(currentIndex >= 0 ? currentIndex : tracks.length - 1)}>- REM</button>
-        <button className="pl-btn" onClick={() => onReorder([])}>CLR</button>
+        <button className="pl-btn" onClick={deleteSelected}>
+          {selCount > 1 ? `- REM (${selCount})` : '- REM'}
+        </button>
+        <button className="pl-btn" onClick={() => onReorder([])}>CLR ALL</button>
         <button className="pl-btn" onClick={() => tracks.length > 0 && window.winampAPI.savePlaylist(tracks)}>SAVE</button>
       </div>
 
       <div className="playlist-status">
-        <span>{tracks.length} track{tracks.length !== 1 ? 's' : ''}</span>
+        <span>
+          {selCount > 0
+            ? `${selCount} selected / ${tracks.length} tracks`
+            : `${tracks.length} track${tracks.length !== 1 ? 's' : ''}`}
+        </span>
         <span>{totalTime(tracks)}</span>
       </div>
     </div>

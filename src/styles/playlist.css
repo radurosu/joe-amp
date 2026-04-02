@@ -84,9 +84,29 @@
   font-weight: bold;
 }
 
+.playlist-track.selected {
+  background: #001f00;
+  color: #00cc00;
+}
+
+.playlist-track.selected .track-index,
+.playlist-track.selected .track-duration {
+  color: #006600;
+}
+
 .playlist-track.dragging {
   opacity: 0.5;
 }
+
+.track-remove {
+  color: #333;
+  cursor: pointer;
+  font-size: 9px;
+  padding-left: 4px;
+  flex-shrink: 0;
+}
+.playlist-track:hover .track-remove { color: #666; }
+.track-remove:hover { color: #cc0000 !important; }
 
 .drag-handle {
   color: #003300;

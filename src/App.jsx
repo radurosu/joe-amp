@@ -30,6 +30,17 @@ function reducer(state, action) {
       else if (action.index < currentIndex) currentIndex--
       return { ...state, playlist, currentIndex }
     }
+    case 'REMOVE_TRACKS': {
+      const removing = new Set(action.indices)
+      const playlist = state.playlist.filter((_, i) => !removing.has(i))
+      let currentIndex = state.currentIndex
+      if (removing.has(currentIndex)) {
+        currentIndex = playlist.length > 0 ? Math.min(currentIndex, playlist.length - 1) : -1
+      } else {
+        currentIndex -= [...removing].filter(i => i < currentIndex).length
+      }
+      return { ...state, playlist, currentIndex }
+    }
     case 'REORDER_TRACKS':
       return { ...state, playlist: action.playlist }
     case 'SET_CURRENT_INDEX':
@@ -92,6 +103,25 @@ export default function App() {
     }
     prevIndexRef.current = currentIndex
   }, [currentIndex]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Restore saved state on mount
+  React.useEffect(() => {
+    window.winampAPI.loadState().then((saved) => {
+      if (!saved?.playlist?.length) return
+      dispatch({ type: 'ADD_TRACKS', tracks: saved.playlist })
+      if (saved.currentIndex >= 0) {
+        dispatch({ type: 'SET_CURRENT_INDEX', index: saved.currentIndex })
+      }
+    }).catch(() => {})
+  }, [])
+
+  // Persist playlist + currentIndex whenever they change (debounced)
+  React.useEffect(() => {
+    const t = setTimeout(() => {
+      window.winampAPI.saveState({ playlist, currentIndex })
+    }, 500)
+    return () => clearTimeout(t)
+  }, [playlist, currentIndex])
 
   // Play startup sound — fire and forget, never touches the playlist
   React.useEffect(() => {
@@ -171,8 +201,8 @@ export default function App() {
       if (e.code === 'Space') { e.preventDefault(); audio.status === 'playing' ? audio.pause() : handlePlay() }
       if (e.code === 'ArrowRight') handleNext()
       if (e.code === 'ArrowLeft') handlePrev()
-      if (e.code === 'ArrowUp') dispatch({ type: 'SET_VOLUME', volume: Math.min(1, volume + 0.05) })
-      if (e.code === 'ArrowDown') dispatch({ type: 'SET_VOLUME', volume: Math.max(0, volume - 0.05) })
+      if (e.code === 'ArrowUp') { e.preventDefault(); dispatch({ type: 'SET_VOLUME', volume: Math.min(1, volume + 0.05) }) }
+      if (e.code === 'ArrowDown') { e.preventDefault(); dispatch({ type: 'SET_VOLUME', volume: Math.max(0, volume - 0.05) }) }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -208,6 +238,7 @@ export default function App() {
           onTrackSelect={(i) => dispatch({ type: 'SET_CURRENT_INDEX', index: i })}
           onAddFiles={handleOpenFiles}
           onRemoveTrack={(i) => dispatch({ type: 'REMOVE_TRACK', index: i })}
+          onRemoveTracks={(indices) => dispatch({ type: 'REMOVE_TRACKS', indices })}
           onReorder={(pl) => dispatch({ type: 'REORDER_TRACKS', playlist: pl })}
           onClose={() => dispatch({ type: 'TOGGLE_PLAYLIST' })}
         />
